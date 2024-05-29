@@ -470,3 +470,31 @@
 // RUN:     --sysroot=%S/Inputs/basic_riscv64_tree/riscv64-unknown-elf \
 // RUN:   | FileCheck --check-prefix=CHECK-RV64-RELAX %s
 // CHECK-RV64-RELAX-NOT: "--no-relax"
+
+// Check that "--patch-enable" is forwarded to the linker for RISC-V
+// if "-fpatch-indirect" is enabled.
+// RUN: %clang %s -### 2>&1 --target=riscv32-unknown-elf -nostdinc -fpatch-indirect \
+// RUN:     --sysroot=%S/Inputs/basic_riscv32_tree/riscv32-unknown-elf \
+// RUN:   | FileCheck --check-prefix=CHECK-RV32-PATCH-ENABLE %s
+// CHECK-RV32-PATCH-ENABLE: "--patch-enable"
+
+// Check that "--patch-enable" is not forwarded to the linker for RISC-V
+// if "-fpatch-indirect" is not enabled.
+// RUN: %clang %s -### 2>&1 --target=riscv32-unknown-elf -nostdinc \
+// RUN:     --sysroot=%S/Inputs/basic_riscv32_tree/riscv32-unknown-elf \
+// RUN:   | FileCheck --check-prefix=CHECK-RV32-PATCH-NOT-ENABLED %s
+// CHECK-RV32-PATCH-NOT-ENABLED-NOT: "--patch-enable"
+
+// Check that "--patch-enable" is forwarded to the linker for RISC-V
+// if "-fpatch-indirect" is enabled.
+// RUN: %clang %s -### 2>&1 --target=riscv64-unknown-elf -nostdinc -fpatch-indirect \
+// RUN:     --sysroot=%S/Inputs/basic_riscv64_tree/riscv64-unknown-elf \
+// RUN:   | FileCheck --check-prefix=CHECK-RV64-PATCH-ENABLE %s
+// CHECK-RV64-PATCH-ENABLE: "--patch-enable"
+
+// Check that "--patch-enable" is not forwarded to the linker for RISC-V
+// if "-fpatch-indirect" is not enabled.
+// RUN: %clang %s -### 2>&1 --target=riscv64-unknown-elf -nostdinc \
+// RUN:     --sysroot=%S/Inputs/basic_riscv64_tree/riscv64-unknown-elf \
+// RUN:   | FileCheck --check-prefix=CHECK-RV64-PATCH-NOT-ENABLED %s
+// CHECK-RV64-PATCH-NOT-ENABLED-NOT: "--patch-enable"

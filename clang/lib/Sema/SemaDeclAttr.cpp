@@ -6350,6 +6350,23 @@ static bool MustDelayAttributeArguments(const ParsedAttr &AL) {
   return false;
 }
 
+PatchableAttr *Sema::mergePatchableAttr(Decl *D,
+                                        const AttributeCommonInfo &CI) {
+  if (D->hasAttr<PatchableAttr>())
+    return nullptr;
+
+  return ::new (Context) PatchableAttr(Context, CI);
+}
+
+static void handlePatchableAttr(Sema &S, Decl *D, const ParsedAttr &AL) {
+  if (!S.getLangOpts().PatchIndirect) {
+    S.Diag(AL.getLoc(), diag::warn_patchable_attribute_ignored);
+    return;
+  }
+  if (PatchableAttr *Patchable = S.mergePatchableAttr(D, AL))
+    D->addAttr(Patchable);
+}
+
 /// ProcessDeclAttribute - Apply the specific attribute to the specified decl if
 /// the attribute applies to decls.  If the attribute is a type attribute, just
 /// silently ignore it if a GNU attribute.
@@ -7205,6 +7222,10 @@ ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D, const ParsedAttr &AL,
 
   case ParsedAttr::AT_VTablePointerAuthentication:
     handleVTablePointerAuthentication(S, D, AL);
+    break;
+
+  case ParsedAttr::AT_Patchable:
+    handlePatchableAttr(S, D, AL);
     break;
   }
 }

@@ -384,4 +384,7 @@ def warn_hlsl_langstd_minimal :
   Warning<"support for HLSL language version %0 is incomplete, "
           "recommend using %1 instead">,
   InGroup<HLSLDXCCompat>;
+
+def err_patchable_attribute_invalid :
+  Error<"'patchable' attribute cannot be applied to %0 %1 '%2'">;
 }

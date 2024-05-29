@@ -510,6 +510,16 @@ void baremetal::Linker::ConstructJob(Compilation &C, const JobAction &JA,
   if (TC.getTriple().isRISCV() && Args.hasArg(options::OPT_mno_relax))
     CmdArgs.push_back("--no-relax");
 
+  if (Args.hasArg(options::OPT_fpatch_indirect))
+    CmdArgs.push_back("--patch-enable");
+  if (const Arg *A = Args.getLastArg(options::OPT_patch_base)) {
+    if (A->containsValue(""))
+      D.Diag(diag::err_drv_empty_joined_argument) << A->getAsString(Args);
+    else
+      CmdArgs.push_back(
+          Args.MakeArgString("--patch-base=" + Twine(A->getValue())));
+  }
+
   if (Triple.isARM() || Triple.isThumb()) {
     bool IsBigEndian = arm::isARMBigEndian(Triple, Args);
     if (IsBigEndian)

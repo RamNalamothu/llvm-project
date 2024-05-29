@@ -772,6 +772,7 @@ enum AttributeKindCodes {
   ATTR_KIND_CORO_ELIDE_SAFE = 98,
   ATTR_KIND_NO_EXT = 99,
   ATTR_KIND_NO_DIVERGENCE_SOURCE = 100,
+  ATTR_KIND_PATCHABLE = 101,
 };
 
 enum ComdatSelectionKindCodes {
