@@ -1088,6 +1088,17 @@ void AsmPrinter::emitFunctionEntryLabel() {
       if (MAI->hasDotTypeDotSizeDirective())
         OutStreamer->emitSymbolAttribute(Sym, MCSA_ELF_TypeFunction);
     }
+
+    if (MF->getFunction().hasFnAttribute(llvm::Attribute::Patchable)) {
+      if (!TM.supportsPatchIndirect())
+        llvm::report_fatal_error(
+            "ROM patching is not supported on this platform");
+
+      MCSymbol *S = OutContext.getOrCreateSymbol("__llvm_patchable_" +
+                                                 CurrentFnSym->getName());
+      emitLinkage(&MF->getFunction(), S);
+      OutStreamer->emitLabel(S);
+    }
   }
 }
 

@@ -1652,7 +1652,7 @@ void CodeGenModule::setGlobalVisibility(llvm::GlobalValue *GV,
 }
 
 static bool shouldAssumeDSOLocal(const CodeGenModule &CGM,
-                                 llvm::GlobalValue *GV) {
+                                 llvm::GlobalValue *GV, const NamedDecl *D) {
   if (GV->hasLocalLinkage())
     return true;
 
@@ -1713,6 +1713,15 @@ static bool shouldAssumeDSOLocal(const CodeGenModule &CGM,
              CGM.getLangOpts().HalfNoSemanticInterposition);
   }
 
+  if (RM == llvm::Reloc::Static && !LOpts.PIE) {
+    // At present, only globals with patchable attribute and having external
+    // linkage with default visibility are preemptable.
+    // FIXME: Update these checks when those restrictions are relaxed.
+    if (CGM.getLangOpts().PatchIndirect && D && D->hasAttr<PatchableAttr>() &&
+        GV->hasExternalLinkage() && GV->hasDefaultVisibility())
+      return false;
+  }
+
   // A definition cannot be preempted from an executable.
   if (!GV->isDeclarationForLinker())
     return true;
@@ -1753,8 +1762,9 @@ static bool shouldAssumeDSOLocal(const CodeGenModule &CGM,
   return false;
 }
 
-void CodeGenModule::setDSOLocal(llvm::GlobalValue *GV) const {
-  GV->setDSOLocal(shouldAssumeDSOLocal(*this, GV));
+void CodeGenModule::setDSOLocal(llvm::GlobalValue *GV,
+                                const NamedDecl *D) const {
+  GV->setDSOLocal(shouldAssumeDSOLocal(*this, GV, D));
 }
 
 void CodeGenModule::setDLLImportDLLExport(llvm::GlobalValue *GV,
@@ -1795,7 +1805,7 @@ void CodeGenModule::setGVProperties(llvm::GlobalValue *GV,
 void CodeGenModule::setGVPropertiesAux(llvm::GlobalValue *GV,
                                        const NamedDecl *D) const {
   setGlobalVisibility(GV, D);
-  setDSOLocal(GV);
+  setDSOLocal(GV, D);
   GV->setPartition(CodeGenOpts.SymbolPartition);
 }
 
@@ -2908,6 +2918,10 @@ void CodeGenModule::SetFunctionAttributes(GlobalDecl GD, llvm::Function *F,
              ->canLosslesslyBitCastTo(F->getReturnType()) &&
            "unexpected this return");
     F->addParamAttr(0, llvm::Attribute::Returned);
+  }
+
+  if (getLangOpts().PatchIndirect && FD->hasAttr<PatchableAttr>()) {
+      F->addFnAttr(llvm::Attribute::Patchable);
   }
 
   // Only a few attributes are set on declarations; these may later be
@@ -4680,7 +4694,7 @@ llvm::Constant *CodeGenModule::GetOrCreateLLVMFunction(
     // Handle dropped DLL attributes.
     if (D && shouldDropDLLAttribute(D, Entry)) {
       Entry->setDLLStorageClass(llvm::GlobalValue::DefaultStorageClass);
-      setDSOLocal(Entry);
+      setDSOLocal(Entry, cast<NamedDecl>(D));
     }
 
     // If there are two attempts to define the same mangled name, issue an

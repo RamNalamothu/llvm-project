@@ -3887,6 +3887,11 @@ def err_cconv_incomplete_param_type : Error<
   "calling convention">;
 def err_attribute_output_parameter : Error<
   "attribute only applies to output parameters">;
+def warn_patchable_attribute_ignored :
+  Warning<"'patchable' attribute ignored; use -fpatch-indirect to enable the attribute">,
+  InGroup<IgnoredAttributes>;
+def err_patchable_attribute_invalid :
+  Error<"'patchable' attribute cannot be applied to %0 %1 '%2'">;
 
 def ext_cannot_use_trivial_abi : ExtWarn<
   "'trivial_abi' cannot be applied to %0">, InGroup<IgnoredAttributes>;

@@ -52,6 +52,8 @@ public:
 
   bool isNoopAddrSpaceCast(unsigned SrcAS, unsigned DstAS) const override;
 
+  bool supportsPatchIndirect() const override { return true; }
+
   yaml::MachineFunctionInfo *createDefaultFuncInfoYAML() const override;
   yaml::MachineFunctionInfo *
   convertFuncInfoToYAML(const MachineFunction &MF) const override;

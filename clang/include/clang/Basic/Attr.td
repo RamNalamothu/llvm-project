@@ -4854,3 +4854,9 @@ def ClspvLibclcBuiltin: InheritableAttr {
   let Documentation = [ClspvLibclcBuiltinDoc];
   let SimpleHandler = 1;
 }
+
+def Patchable : InheritableAttr {
+  let Spellings = [Clang<"patchable">];
+  let Subjects = SubjectList<[Function], WarnDiag>;
+  let Documentation = [Undocumented];
+}

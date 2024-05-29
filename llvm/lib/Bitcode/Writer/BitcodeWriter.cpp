@@ -813,6 +813,8 @@ static uint64_t getAttrKindEncoding(Attribute::AttrKind Kind) {
     return bitc::ATTR_KIND_OPTIMIZE_FOR_SIZE;
   case Attribute::OptimizeNone:
     return bitc::ATTR_KIND_OPTIMIZE_NONE;
+  case Attribute::Patchable:
+    return bitc::ATTR_KIND_PATCHABLE;
   case Attribute::ReadNone:
     return bitc::ATTR_KIND_READ_NONE;
   case Attribute::ReadOnly:

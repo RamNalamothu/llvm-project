@@ -5789,6 +5789,7 @@ public:
   /// type. Subroutine of MergeFunctionDecl. Returns true if there was an
   /// error, false otherwise.
   bool MergeCXXFunctionDecl(FunctionDecl *New, FunctionDecl *Old, Scope *S);
+  PatchableAttr *mergePatchableAttr(Decl *D, const AttributeCommonInfo &CI);
 
   /// Helpers for dealing with blocks and functions.
   void CheckCXXDefaultArguments(FunctionDecl *FD);

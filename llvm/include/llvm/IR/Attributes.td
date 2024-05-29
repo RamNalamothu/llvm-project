@@ -259,6 +259,9 @@ def OptimizeForSize : EnumAttr<"optsize", IntersectPreserve, [FnAttr]>;
 /// Function must not be optimized.
 def OptimizeNone : EnumAttr<"optnone", IntersectPreserve, [FnAttr]>;
 
+/// Function may be patched at run-time and hence skip IPO optimizations.
+def Patchable : EnumAttr<"patchable", IntersectPreserve, [FnAttr]>;
+
 /// Similar to byval but without a copy.
 def Preallocated : TypeAttr<"preallocated", IntersectPreserve, [FnAttr, ParamAttr]>;
 

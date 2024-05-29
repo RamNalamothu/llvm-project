@@ -5759,9 +5759,35 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
   // Otherwise use Clang's traditional behavior: like
   // -fno-semantic-interposition but local aliases are not used. So references
   // can be interposed if not optimized out.
+  //
+  // -fpatch-indirect is forwarded to CC1; makes default visibility external
+  // linkage definitions dso_preemptable; applies interposability only to such
+  // definitions with the 'patchable' attribute; works only for static
+  // non-PIE ELF images.
   if (Triple.isOSBinFormatELF()) {
     Arg *A = Args.getLastArg(options::OPT_fsemantic_interposition,
                              options::OPT_fno_semantic_interposition);
+
+    if (Arg *PIArg = Args.getLastArg(options::OPT_fpatch_indirect)) {
+      // Cannot combine -fpatch-indirect with -fsemantic-interposition or
+      // --patch-base.
+      if (A && A->getOption().matches(options::OPT_fsemantic_interposition))
+        D.Diag(diag::err_drv_cannot_mix_options)
+            << PIArg->getAsString(Args) << A->getAsString(Args);
+      if (IsUsingLTO)
+        D.Diag(diag::err_drv_cannot_mix_options)
+            << PIArg->getAsString(Args)
+            << Args.MakeArgString(Twine("-flto=") +
+                                  (LTOMode == LTOK_Thin ? "thin" : "full"));
+      if (Arg *PBArg = Args.getLastArg(options::OPT_patch_base))
+        D.Diag(diag::err_drv_cannot_mix_options)
+            << PIArg->getAsString(Args) << PBArg->getAsString(Args);
+      if (RelocationModel != llvm::Reloc::Static || IsPIE)
+        D.Diag(diag::err_drv_argument_only_allowed_with)
+            << PIArg->getAsString(Args) << "static non-PIE ELF images";
+      CmdArgs.push_back("-fpatch-indirect");
+    }
+
     if (RelocationModel != llvm::Reloc::Static && !IsPIE) {
       // The supported targets need to call AsmPrinter::getSymbolPreferLocal.
       bool SupportsLocalAlias =

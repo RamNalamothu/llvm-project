@@ -6638,6 +6638,16 @@ defm semantic_interposition : BoolFOption<"semantic-interposition",
   DocBrief<[{Enable semantic interposition. Semantic interposition allows for the
 interposition of a symbol by another at runtime, thus preventing a range of
 inter-procedural optimisation.}]>;
+def fpatch_indirect : Flag<["-"], "fpatch-indirect">,
+  Group<f_Group>, Visibility<[ClangOption, CC1Option]>,
+  HelpText<"For static non-PIE ELF executables, enable interposition of external linkage "
+"default visible functions that are annotated with 'patchable' attribute.">,
+  MarshallingInfoFlag<LangOpts<"PatchIndirect">>;
+def patch_enable : Flag<["--"], "patch-enable">, Group<Link_Group>,
+  HelpText<"Enables special handling of patchable symbols in the linker. Passed to linker, "
+"by default, when -fpatch-indirect is enabled">;
+def patch_base : Joined<["--"], "patch-base=">, Flags<[LinkerInput]>, Group<Link_Group>,
+  HelpText<"Provides base image file when linking patched image file">;
 defm non_call_exceptions : BooleanFFlag<"non-call-exceptions">, Group<clang_ignored_f_Group>;
 defm peel_loops : BooleanFFlag<"peel-loops">, Group<clang_ignored_gcc_optimization_f_Group>;
 defm permissive : BooleanFFlag<"permissive">, Group<clang_ignored_f_Group>;

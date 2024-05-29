@@ -396,6 +396,9 @@ BENIGN_ENUM_LANGOPT(ExternDeclNoDLLStorageClassVisibility, VisibilityFromDLLStor
 BENIGN_LANGOPT(SemanticInterposition        , 1, 0, "semantic interposition")
 BENIGN_LANGOPT(HalfNoSemanticInterposition, 1, 0,
                "Like -fno-semantic-interposition but don't use local aliases")
+BENIGN_LANGOPT(PatchIndirect, 1, 0,
+               "For static non-PIE ELF executables, enable interposition of external linkage default "
+               "visible functions that are annotated with 'patchable' attribute")
 ENUM_LANGOPT(StackProtector, StackProtectorMode, 2, SSPOff,
              "stack protector mode")
 ENUM_LANGOPT(TrivialAutoVarInit, TrivialAutoVarInitKind, 2, TrivialAutoVarInitKind::Uninitialized,

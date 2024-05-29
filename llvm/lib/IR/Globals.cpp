@@ -105,8 +105,21 @@ GlobalObject::~GlobalObject() { setComdat(nullptr); }
 bool GlobalValue::isInterposable() const {
   if (isInterposableLinkage(getLinkage()))
     return true;
-  return getParent() && getParent()->getSemanticInterposition() &&
-         !isDSOLocal();
+
+  if (isDSOLocal())
+    return false;
+
+  if (getParent() && getParent()->getSemanticInterposition())
+    return true;
+
+  // FIXME: We probably may need to gate this by checking if ROM patching is
+  // enabled, which requires adding PatchIndirect module flag, to catch the
+  // incorrect use cases of feeding a previously generated LLVM IR, having the
+  // 'Patchable' attribute, when '-fpatch-indirect' is not enabled.
+  if (const Function *F = dyn_cast<Function>(this))
+    return F->hasFnAttribute(Attribute::Patchable);
+
+  return false;
 }
 
 bool GlobalValue::canBenefitFromLocalAlias() const {

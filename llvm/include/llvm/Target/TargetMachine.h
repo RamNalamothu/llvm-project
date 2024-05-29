@@ -244,6 +244,9 @@ public:
 
   bool shouldAssumeDSOLocal(const GlobalValue *GV) const;
 
+  // Returns true if ROM patching is supported.
+  virtual bool supportsPatchIndirect() const { return false; }
+
   /// Returns true if this target uses emulated TLS.
   bool useEmulatedTLS() const;
 
